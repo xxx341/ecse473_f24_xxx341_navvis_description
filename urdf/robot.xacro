@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="navvis">
+
+  <!-- Include the XACRO file that defines a Hokuyo LIDAR. -->
+  <xacro:include filename="$(find
+gazebo_plugins)/test/multi_robot_scenario/xacro/laser/hokuyo.xacro" />
+  <xacro:laser name="laser_vert_bottom" parent="base" xyz="0.3157894464801903
+-0.002068548615034871 0.5099999434059285" rpy="3.1354753 -1.3045001 0.0024658"
+meshes="package://gazebo_plugins/test/multi_robot_scenario/meshes/laser" />
+
+  <!-- Include the XACRO file that defines a Hokuyo LIDAR. -->
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
+  <!-- Invoke the macro to define the Hokuyo LIDAR. -->
+  <xacro:VLP-16 parent="base" name="laser_horiz" topic="laser_horiz/packets" hz="10"
+samples="440" gpu="false">
+    <origin xyz="0.2325416305773505 -0.0001380069427607134 1.920122926231907"
+rpy="-0.0012068 0.114646 -0.0015308" />
+  </xacro:VLP-16>
+  
+
+  <link name="base">
+    <visual>
+      <!-- Shift the box up half its height. !-->
+      <origin xyz="0.0 0.0 0.96" rpy="0.0 0.0 0.0" />
+      <geometry>
+        <box size="0.45 0.78 1.92" />
+      </geometry>
+    </visual>
+    <collision>
+      <!-- Shift the box up half its height. !-->
+      <origin xyz="0.0 0.0 0.96" rpy="0.0 0.0 0.0" />
+      <geometry>
+        <box size="0.45 0.78 1.92" />
+      </geometry>
+    </collision>
+  </link>
+  
+  <xacro:macro name="laser_vert_top" params="side">
+    <link name="laser_vert_top_${side}">
+      <visual>
+        <!-- Shift the box up half its height. !-->
+        <origin xyz="0.0 0.0 0.96" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.062 0.062 0.087" />
+        </geometry>
+      </visual>
+      <collision>
+        <!-- Shift the box up half its height. !-->
+        <origin xyz="0.0 0.0 0.96" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.062 0.062 0.087" />
+        </geometry>
+      </collision>
+    </link>
+    
+    <joint name="base_laser_vert_top_${side}_joint" type="fixed">
+      <parent link="base" />
+      <child link="laser_vert_top_${side}" />
+      <origin xyz="0.3158 -0.0021 0.5100" rpy="3.1355 -1.3045 0.0025" />
+    </joint>
+  </xacro:macro>
+
+  <xacro:laser_vert_top side="left" />
+  <xacro:laser_vert_top side="right" />
+  
+  
+  <!-- XACRO Macro definition block to add around the wheel link and joint !-->
+  <xacro:macro name="xacro_name" params="side reflect">
+    <link name="wheel_${side}">
+      <visual>
+        <geometry>
+          <cylinder radius="0.2" length="0.05" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="0.2" length="0.05" />
+        </geometry>
+      </collision>
+    </link>
+    
+    <joint name="base_wheel_${side}_joint" type="continuous">
+      <parent link="base" />
+      <child link="wheel_${side}" />
+      <!-- The location of the right wheel is mirrored across the Y-axis. !-->
+      <origin xyz="-0.10 ${reflect * 0.4} 0.0" rpy="-1.5708 0.0 0.0" />
+      <axis xyz="0 1 0" />
+      <limit effort="10.0" velocity="1.0" />
+    </joint>
+  </xacro:macro>
+  
+  <!-- Call the XACRO Macro. It should be the left wheel !-->
+  <xacro:xacro_name side="left" reflect="1" />
+  <xacro:xacro_name side="right" reflect="-1" />
+  
+  <link name="wheel_center">
+      <visual>
+        <geometry>
+          <cylinder radius="0.15" length="0.05" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="0.15" length="0.05" />
+        </geometry>
+      </collision>
+    </link>
+  
+  <joint name="base_wheel_center_joint" type="continuous">
+    <parent link="base" />
+    <child link="wheel_center" />
+    <origin xyz="0.1 0.0 0.0" rpy="-1.5708 0.0 0.0" />
+    <axis xyz="0 1 0" />
+    <limit effort="10.0" velocity="1.0" />
+  </joint>
+</robot>
+
+
+
+
+
